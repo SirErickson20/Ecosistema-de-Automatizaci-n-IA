@@ -1,0 +1,1546 @@
+{
+  "name": "Ecosistema de Automatización IA Autónomo",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        144
+      ],
+      "id": "ed1b10ad-6629-464f-a801-04f06e3b43a4",
+      "name": "Gmail: Correo Entrante",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1nTezIkVwQtKy4WY",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "233fbbe6-8657-4a30-9726-816fb65d72bc",
+              "leftValue": "={{ $json.From.extractEmail() }}",
+              "rightValue": "telaardigital@gmail.com",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "3a9af8f6-a3e8-40b0-91a4-d69d7c08502f",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Auto:",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "9ee53f27-2a1c-447b-b9c0-1c52bc665b30",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Respuesta automática",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        144
+      ],
+      "id": "9d68572b-755e-453a-b6f5-048be3bc29a3",
+      "name": "Filtro: Seguridad Anti-Bucle"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app2pdvcMxZ715fEe",
+          "mode": "list",
+          "cachedResultName": "Ecosistema de Automatización IA Autónomo ",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblTkpQNQtssVETlg",
+          "mode": "list",
+          "cachedResultName": "Gestión de Casos",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe/tblTkpQNQtssVETlg"
+        },
+        "filterByFormula": "={Thread_ID} = '{{ $json.threadId }}'",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        128
+      ],
+      "id": "56cb38ee-cfaa-4404-a78f-e97f2637e4d8",
+      "name": "Airtable: Buscar Thread ID",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KlpxouRJMWVEj21V",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c36010cb-14a9-4c08-bea1-2caa3edf42cd",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        128
+      ],
+      "id": "cb4cbfbe-f0ca-4313-9329-6ce24cf67e62",
+      "name": "IF: ¿Es Caso Nuevo?"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app2pdvcMxZ715fEe",
+          "mode": "list",
+          "cachedResultName": "Ecosistema de Automatización IA Autónomo ",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblTkpQNQtssVETlg",
+          "mode": "list",
+          "cachedResultName": "Gestión de Casos",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe/tblTkpQNQtssVETlg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Registro": "={{ $('Gmail: Correo Entrante').item.json.id }}",
+            "Thread_ID": "={{ $('Gmail: Correo Entrante').item.json.threadId }}",
+            "Nombre_Cliente": "={{ $('Gmail: Correo Entrante').item.json.From }}",
+            "Mensaje_Original": "={{ $('Gmail: Correo Entrante').item.json.snippet }}",
+            "Contexto_Negocio": "={{ $('Gmail: Correo Entrante').item.json.Subject }}",
+            "Estado": "Pendiente"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID_Registro",
+              "displayName": "ID_Registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre_Cliente",
+              "displayName": "Nombre_Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje_Original",
+              "displayName": "Mensaje_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contexto_Negocio",
+              "displayName": "Contexto_Negocio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Generada_IA",
+              "displayName": "Respuesta_Generada_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Thread_ID",
+              "displayName": "Thread_ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Logs de Errores",
+              "displayName": "Logs de Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        16
+      ],
+      "id": "9ed7766b-e768-44c3-af13-08b5da299fb7",
+      "name": "Airtable: Registrar Caso Nuevo",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KlpxouRJMWVEj21V",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app2pdvcMxZ715fEe",
+          "mode": "list",
+          "cachedResultName": "Ecosistema de Automatización IA Autónomo ",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblTkpQNQtssVETlg",
+          "mode": "list",
+          "cachedResultName": "Gestión de Casos",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe/tblTkpQNQtssVETlg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Airtable: Buscar Thread ID').item.json.id }}",
+            "Mensaje_Original": "={{ $('Gmail: Correo Entrante').item.json.snippet }}",
+            "Estado": "Pendiente"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "ID_Registro",
+              "displayName": "ID_Registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre_Cliente",
+              "displayName": "Nombre_Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje_Original",
+              "displayName": "Mensaje_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contexto_Negocio",
+              "displayName": "Contexto_Negocio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Generada_IA",
+              "displayName": "Respuesta_Generada_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Thread_ID",
+              "displayName": "Thread_ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Logs de Errores",
+              "displayName": "Logs de Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        224
+      ],
+      "id": "a0e21515-64a3-4262-a643-2de9c2e08a00",
+      "name": "Airtable: Actualizar Caso Existente",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KlpxouRJMWVEj21V",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Procesa el correo del cliente.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Eres el Asistente de Atención al Cliente de nuestra empresa tecnológica. Tu objetivo es procesar el mensaje del cliente, clasificarlo y redactar una respuesta profesional y empática.\n\nDATOS DEL CASO ACTUAL (Traídos de Airtable):\n- Cliente: {{ $json.fields.Nombre_Cliente }}\n- Mensaje recibido: {{ $json.fields.Mensaje_Original }}\n\nINSTRUCCIONES DE PROCESAMIENTO:\n1. Analiza el \"Mensaje recibido\".\n2. Clasifica el caso en uno de estos dos contextos:\n   - \"Clasificación: Lead VIP\" (si pregunta por presupuestos, compras o demostraciones comerciales).\n   - \"Clasificación: Soporte Técnico\" (si reporta fallas, problemas con la app o bloqueos).\n3. Redacta una propuesta de respuesta oficial para el cliente. Dirígete a él/ella por su nombre si está disponible. Usa un tono formal, claro y servicial.\n4. Tu respuesta debe terminar redactando únicamente la propuesta de correo lista para ser aprobada por el equipo humano. No agregues saludos internos ni notas de sistema al final."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        976,
+        112
+      ],
+      "id": "38a879c8-fda7-44af-b2fc-f589b5afef7b",
+      "name": "Agente IA: Analizar y Redactar",
+      "retryOnFail": true,
+      "maxTries": 3
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {
+          "maxOutputTokens": 1000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        272
+      ],
+      "id": "14e0d810-6e86-473c-8aee-845a6bd3d3c0",
+      "name": "Gemini: Modelo de Lenguaje",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "a42XFGd7V7F7c7ND",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"clasificacion\": \"Lead VIP o Soporte Tecnico\",\n\t\"asunto\": \"coloca el asunto de la respuesta del correo\",\n    \"contenido\": \"coloca el contenido del correo\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        272
+      ],
+      "id": "6662e082-bd99-4315-b902-f238ab1c51a8",
+      "name": "Formateador de Respuesta"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app2pdvcMxZ715fEe",
+          "mode": "list",
+          "cachedResultName": "Ecosistema de Automatización IA Autónomo ",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblTkpQNQtssVETlg",
+          "mode": "list",
+          "cachedResultName": "Gestión de Casos",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe/tblTkpQNQtssVETlg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $if($('Airtable: Registrar Caso Nuevo').isExecuted, $('Airtable: Registrar Caso Nuevo').item.json.id, $('Airtable: Actualizar Caso Existente').item.json.id) }}",
+            "Estado": "Procesado por IA",
+            "Respuesta_Generada_IA": "=Clasificación:  {{ $json.output.clasificacion }}\nAsunto: {{ $json.output.asunto}}\nContenido: {{ $json.output.contenido }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "ID_Registro",
+              "displayName": "ID_Registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre_Cliente",
+              "displayName": "Nombre_Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje_Original",
+              "displayName": "Mensaje_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contexto_Negocio",
+              "displayName": "Contexto_Negocio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Generada_IA",
+              "displayName": "Respuesta_Generada_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Thread_ID",
+              "displayName": "Thread_ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Logs de Errores",
+              "displayName": "Logs de Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        112
+      ],
+      "id": "174d46c1-e1cc-4496-8f33-97cde365097a",
+      "name": "Airtable: Guardar Propuesta (Procesado por IA)",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KlpxouRJMWVEj21V",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BJ4GHMKK2",
+          "mode": "list",
+          "cachedResultName": "notificaciones"
+        },
+        "text": "=🤖 *¡Nuevo caso procesado por IA!* \n\n👤 *Cliente:* {{ $json.fields.Nombre_Cliente }} \n\n✉️ *Asunto original:* {{ $json.fields.Contexto_Negocio }}  \n\n📝 *Borrador propuesto por la IA:* {{ $json.fields.Respuesta_Generada_IA }}  \n\n👉 *¿Qué hacemos con este correo?*\n[✅ APROBAR Y ENVIAR]({{ $execution.resumeUrl }}&approve=true)\n[❌ RECHAZAR]({{ $execution.resumeUrl }}&approve=false)",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1456,
+        112
+      ],
+      "id": "98529e4d-7e70-4a3f-b514-15090a22639e",
+      "name": "Slack: Notificar Equipo (HITL)",
+      "webhookId": "b85cb6e8-366d-4966-b2dd-c287d1d6da3d",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "VdewKN0jpOLbUU4x",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1632,
+        112
+      ],
+      "id": "5c67d024-bc46-4459-a423-6678ca88c233",
+      "name": "Espera: Validación Humana",
+      "webhookId": "2c829621-0de1-49de-8d75-4ccb81f43369"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5afe09fa-34b5-4bc4-b694-863c63af05f6",
+              "leftValue": "={{ $json.query.approve }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1808,
+        112
+      ],
+      "id": "53069b6e-81df-452b-b204-ca7813c84d49",
+      "name": "IF: ¿Respuesta Aprobada?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail: Correo Entrante').item.json.From.extractEmail() }}",
+        "subject": "={{ $('Agente IA: Analizar y Redactar').item.json.output.asunto }}",
+        "message": "={{ $('Agente IA: Analizar y Redactar').item.json.output.contenido }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        16
+      ],
+      "id": "594160fd-ce31-44e8-a09b-e9d708aa5c0f",
+      "name": "Gmail: Enviar Respuesta",
+      "webhookId": "2c404a0c-f0db-4a60-91b9-d602785deb21",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1nTezIkVwQtKy4WY",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app2pdvcMxZ715fEe",
+          "mode": "list",
+          "cachedResultName": "Ecosistema de Automatización IA Autónomo ",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblTkpQNQtssVETlg",
+          "mode": "list",
+          "cachedResultName": "Gestión de Casos",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe/tblTkpQNQtssVETlg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $if($('Airtable: Registrar Caso Nuevo').isExecuted, $('Airtable: Registrar Caso Nuevo').item.json.id, $('Airtable: Actualizar Caso Existente').item.json.id) }}",
+            "Estado": "Enviado"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "ID_Registro",
+              "displayName": "ID_Registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre_Cliente",
+              "displayName": "Nombre_Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje_Original",
+              "displayName": "Mensaje_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contexto_Negocio",
+              "displayName": "Contexto_Negocio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Rechazado por Humano",
+                  "value": "Rechazado por Humano"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Generada_IA",
+              "displayName": "Respuesta_Generada_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Thread_ID",
+              "displayName": "Thread_ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Logs de Errores",
+              "displayName": "Logs de Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2208,
+        16
+      ],
+      "id": "b32905da-2eb6-487f-82c1-68a4886e8e22",
+      "name": "Airtable: Marcar como Enviado",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KlpxouRJMWVEj21V",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app2pdvcMxZ715fEe",
+          "mode": "list",
+          "cachedResultName": "Ecosistema de Automatización IA Autónomo ",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblTkpQNQtssVETlg",
+          "mode": "list",
+          "cachedResultName": "Gestión de Casos",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe/tblTkpQNQtssVETlg"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $if($('Airtable: Registrar Caso Nuevo').isExecuted, $('Airtable: Registrar Caso Nuevo').item.json.id, $('Airtable: Actualizar Caso Existente').item.json.id) }}",
+            "Estado": "Rechazado por Humano"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "ID_Registro",
+              "displayName": "ID_Registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre_Cliente",
+              "displayName": "Nombre_Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje_Original",
+              "displayName": "Mensaje_Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contexto_Negocio",
+              "displayName": "Contexto_Negocio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Rechazado por Humano",
+                  "value": "Rechazado por Humano"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta_Generada_IA",
+              "displayName": "Respuesta_Generada_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Thread_ID",
+              "displayName": "Thread_ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Logs de Errores",
+              "displayName": "Logs de Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        240
+      ],
+      "id": "2170d331-6136-46b1-bc99-adca43b3f3a9",
+      "name": "Airtable: Marcar como Rechazado",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KlpxouRJMWVEj21V",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BH73REC9K",
+          "mode": "list",
+          "cachedResultName": "rechazados"
+        },
+        "text": "=⚠️ *Propuesta de correo rechazada para el cliente {{ $json.fields.Nombre_Cliente }}.* Por favor, respondan al correo de forma manual en Gmail para asegurar la atención del caso.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        2208,
+        240
+      ],
+      "id": "015ab7e0-c841-47e3-b649-cb265e3b396d",
+      "name": "Slack: Alerta de Rechazo",
+      "webhookId": "f51f92e3-62ab-4a0d-a08f-bf8575583ab9",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "VdewKN0jpOLbUU4x",
+          "name": "Slack account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        496
+      ],
+      "id": "82d355b6-ad67-4211-ab02-53ec839ac293",
+      "name": "Trigger: Captura de Error"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app2pdvcMxZ715fEe",
+          "mode": "list",
+          "cachedResultName": "Ecosistema de Automatización IA Autónomo ",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl82OZIpCu93m8Pk",
+          "mode": "list",
+          "cachedResultName": "Logs de Errores",
+          "cachedResultUrl": "https://airtable.com/app2pdvcMxZ715fEe/tbl82OZIpCu93m8Pk"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Mensaje_Fallo": "={{ $json.execution.error.message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID_Error",
+              "displayName": "ID_Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Caso_Relacionado",
+              "displayName": "Caso_Relacionado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "ID_Registro (from Caso_Relacionado)",
+              "displayName": "ID_Registro (from Caso_Relacionado)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Mensaje_Fallo",
+              "displayName": "Mensaje_Fallo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        496
+      ],
+      "id": "7709e4b9-b002-49c2-a963-2b2740451ed6",
+      "name": "Airtable: Registrar Log de Error",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KlpxouRJMWVEj21V",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BHE8X7PNY",
+          "mode": "list",
+          "cachedResultName": "error"
+        },
+        "text": "=🚨 *ALERTA DE SISTEMA: \n\nFALLO EN PRODUCCIÓN* \n\nEl nodo {{ $json.node.name }} ha fallado durante el procesamiento del caso. \n\nError: {{ $json.fields.Mensaje_Fallo }}\n\nActualizar el estado a \"Error\" en Airtable",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        432,
+        496
+      ],
+      "id": "ac5f64cb-25fa-49fd-9e9c-ec7f002fa0b5",
+      "name": "Slack: Alerta Técnica (Fallo)",
+      "webhookId": "4b9f4aa5-0624-4e29-9320-eeda3bf4f332",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "VdewKN0jpOLbUU4x",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail: Correo Entrante": {
+      "main": [
+        [
+          {
+            "node": "Filtro: Seguridad Anti-Bucle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtro: Seguridad Anti-Bucle": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Buscar Thread ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Buscar Thread ID": {
+      "main": [
+        [
+          {
+            "node": "IF: ¿Es Caso Nuevo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: ¿Es Caso Nuevo?": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Registrar Caso Nuevo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable: Actualizar Caso Existente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Registrar Caso Nuevo": {
+      "main": [
+        [
+          {
+            "node": "Agente IA: Analizar y Redactar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Actualizar Caso Existente": {
+      "main": [
+        [
+          {
+            "node": "Agente IA: Analizar y Redactar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente IA: Analizar y Redactar": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Guardar Propuesta (Procesado por IA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Modelo de Lenguaje": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente IA: Analizar y Redactar",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formateador de Respuesta": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Agente IA: Analizar y Redactar",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Guardar Propuesta (Procesado por IA)": {
+      "main": [
+        [
+          {
+            "node": "Slack: Notificar Equipo (HITL)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Notificar Equipo (HITL)": {
+      "main": [
+        [
+          {
+            "node": "Espera: Validación Humana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Espera: Validación Humana": {
+      "main": [
+        [
+          {
+            "node": "IF: ¿Respuesta Aprobada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: ¿Respuesta Aprobada?": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Enviar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable: Marcar como Rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Enviar Respuesta": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Marcar como Enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Marcar como Rechazado": {
+      "main": [
+        [
+          {
+            "node": "Slack: Alerta de Rechazo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger: Captura de Error": {
+      "main": [
+        [
+          {
+            "node": "Airtable: Registrar Log de Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable: Registrar Log de Error": {
+      "main": [
+        [
+          {
+            "node": "Slack: Alerta Técnica (Fallo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Alerta Técnica (Fallo)": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "570f6c62-1255-4040-b8da-73ca2b559f5b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9774988d2efc4d9ee3c1b87aae4c70ac6833a31e8031606306db07d7030a6b7c"
+  },
+  "nodeGroups": [],
+  "id": "WXAOGgTFeui8ll2f",
+  "tags": []
+}
