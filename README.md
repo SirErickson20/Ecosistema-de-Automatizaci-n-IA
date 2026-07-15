@@ -25,7 +25,6 @@ Este proyecto consiste en un **Ecosistema Autónomo de Clasificación y Respuest
 
 El flujo inicia con la recepción de un correo, valida la seguridad anti-bucle, consulta la persistencia de datos en Airtable, procesa con el Agente IA, notifica e interactúa con el operador de soporte en Slack y finalmente resuelve mediante Gmail.
 
-*(Sugerencia: Coloca aquí el diagrama de arquitectura o la captura de tu n8n)*
 ![Ecosistema Completo de Automatización](./assets/flujo_n8n_completo.jpeg)
 
 ---
